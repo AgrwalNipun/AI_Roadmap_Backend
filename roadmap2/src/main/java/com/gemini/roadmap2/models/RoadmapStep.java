@@ -16,11 +16,11 @@ import jakarta.persistence.Table;
 public class RoadmapStep{
     
     @Id
-    String id;
+    int id;
 
 
     String aim;
-    String desc;
+    String description;
 
     @ManyToOne
     @JoinColumn(name = "roadmap_id")
@@ -34,17 +34,17 @@ public class RoadmapStep{
 
     public RoadmapStep(){}
 
-    public RoadmapStep(String aim,String desc, List<RoadmapSubstep> substeps){
+    public RoadmapStep(String aim,String description, List<RoadmapSubstep> substeps){
         this.aim = aim;
-        this.desc = desc;
+        this.description = description;
         this.substeps=substeps;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -57,11 +57,11 @@ public class RoadmapStep{
     }
 
     public String getDesc() {
-        return desc;
+        return description;
     }
 
-    public void setDesc(String desc) {
-        this.desc = desc;
+    public void setDesc(String description) {
+        this.description = description;
     }
 
     public List<RoadmapSubstep> getSubsteps() {

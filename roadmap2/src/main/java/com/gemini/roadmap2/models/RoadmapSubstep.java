@@ -17,7 +17,7 @@ public class RoadmapSubstep{
 
 
     String aim;
-    String desc;
+    String description;
 
 
     @ManyToOne
@@ -26,9 +26,9 @@ public class RoadmapSubstep{
 
     public RoadmapSubstep(){}
 
-    public RoadmapSubstep(String aim,String desc){
+    public RoadmapSubstep(String aim,String description){
         this.aim = aim;
-        this.desc = desc;
+        this.description = description;
     }
 
     public String getId() {
@@ -48,11 +48,11 @@ public class RoadmapSubstep{
     }
 
     public String getDesc() {
-        return desc;
+        return description;
     }
 
-    public void setDesc(String desc) {
-        this.desc = desc;
+    public void setDesc(String description) {
+        this.description = description;
     }
 
     public RoadmapStep getStep() {

@@ -14,6 +14,8 @@ public class GeminiService {
 
     private final Client client;
 
+    
+
     public GeminiService(@Value("${google.ai.api.key}") String apiKey) {
             if (apiKey == null || apiKey.isEmpty()) {
         throw new RuntimeException("Google AI API key is missing!");
@@ -23,6 +25,12 @@ public class GeminiService {
 
 }
 
+
+
+
+
+
+    ///////////Generates Keyword for the prompt
 
 
    public String generateKeyword(String prompt) {
@@ -70,14 +78,14 @@ String jsonPrompt = prompt +
     "  \"steps\": [\n" +
     "    {\n" +
     "      \"aim\": \"\",\n" +
-    "      \"desc\": \"\",\n" +
+    "      \"description\": \"\",\n" +
     "      \"substeps\": [\n" +
-    "        { \"aim\": \"\", \"desc\": \"\" }\n" +
+    "        { \"aim\": \"\", \"description\": \"\" }\n" +
     "      ]\n" +
     "    },\n" +
     "    {\n" +
     "      \"aim\": \"\",\n" +
-    "      \"desc\": \"\",\n" +
+    "      \"description\": \"\",\n" +
     "      \"substeps\": []\n" +
     "    }\n" +
     "  ]\n" +
