@@ -19,7 +19,7 @@ public class GeminiService {
         throw new RuntimeException("Google AI API key is missing!");
     }
     this.client = Client.builder().apiKey(apiKey).build();
-    System.out.println("Gemini client initialized successfully");
+    System.out.println("Gem ini client initialized successfully");
 
 }
 
