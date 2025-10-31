@@ -6,6 +6,7 @@ import com.google.genai.types.GenerateContentResponse;
 
 import java.util.Timer;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +15,6 @@ public class GeminiService {
 
     private final Client client;
 
-    
 
     public GeminiService(@Value("${google.ai.api.key}") String apiKey) {
             if (apiKey == null || apiKey.isEmpty()) {
@@ -28,16 +28,20 @@ public class GeminiService {
 
 
 
+    @Autowired
+    RoadmapService roadmapService;
 
 
-    ///////////Generates Keyword for the prompt
+
+
+    ///////////Generates Keyword for the prompth
 
 
    public String generateKeyword(String prompt) {
     // Timer timer = new Timer();
         long startTime = System.currentTimeMillis();
 
-        System.out.println(prompt+"?????????????");
+        // System.out.println(prompt+"?????????????");
     
            String jsonPrompt = 
         "You are a keyword generator. " +
@@ -65,12 +69,14 @@ public class GeminiService {
 
         long endTime = System.currentTimeMillis();
 
-        System.out.println(startTime-endTime+"????Time???????????");
+        System.out.println(endTime-startTime+"ms????Keyword Generation Time???????????");
 
         return response.text();
     }
 
 
+
+    ///Generates Complete Roadmap 
     public String generateText(String prompt) {
 String jsonPrompt = prompt +
     " Do not send anything else. Respond ONLY in JSON format like this. Make it have a tree-like structure if necessary:\n" +
@@ -102,15 +108,24 @@ String jsonPrompt = prompt +
 
         long endTime = System.currentTimeMillis();
 
-        System.out.println(startTime-endTime+"????Time???????????");
+        System.out.println(endTime-startTime+"ms????Complete Roadmap Generation TIme???????????");
 
 
         String textRes = response.text().replaceAll("```json", "");
          textRes = textRes.replaceAll("```", "");
 
 
+         roadmapService.save(textRes);
+         System.out.println("///////////Success");
+
+
 
 
         return textRes;
     }
+
+
+   
+
+
 }

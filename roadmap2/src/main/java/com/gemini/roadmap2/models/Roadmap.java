@@ -74,6 +74,12 @@ public class Roadmap {
   public void setSteps(List<RoadmapStep> steps) {
     this.steps = steps;
   }
+
+
+  @Override
+  public String toString() {
+    return "Roadmap [id=" + id + ", title=" + title + ", keyword=" + keyword + ", steps=" + steps + "]";
+  }
   
   
 

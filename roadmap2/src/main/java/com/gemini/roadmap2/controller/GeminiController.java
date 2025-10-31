@@ -16,9 +16,7 @@ public class GeminiController {
 
     @GetMapping("/generate")
     public String generate(@RequestParam String prompt) {
-            System.out.println("Reached HEre!!!!!!!"+prompt);
         final String keywords = geminiService.generateKeyword(prompt);
-        System.out.println("//////////////////Keywords:" + keywords);
 
         return geminiService.generateText(keywords);
     }

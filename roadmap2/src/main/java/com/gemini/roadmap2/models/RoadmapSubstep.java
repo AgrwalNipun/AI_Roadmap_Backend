@@ -47,11 +47,11 @@ public class RoadmapSubstep{
         this.aim = aim;
     }
 
-    public String getDesc() {
+    public String getDescription() {
         return description;
     }
 
-    public void setDesc(String description) {
+    public void setDescription(String description) {
         this.description = description;
     }
 
@@ -61,6 +61,11 @@ public class RoadmapSubstep{
 
     public void setStep(RoadmapStep step) {
         this.step = step;
+    }
+
+    @Override
+    public String toString() {
+        return "RoadmapSubstep [Id=" + Id + ", aim=" + aim + ", description=" + description + "]";
     }
 
 
