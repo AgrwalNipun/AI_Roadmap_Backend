@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class GeminiController {
 
-    private  GeminiService geminiService;
+    private GeminiService geminiService;
 
     public GeminiController(GeminiService geminiService) {
         this.geminiService = geminiService;

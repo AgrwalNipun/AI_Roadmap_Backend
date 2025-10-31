@@ -1,50 +1,40 @@
 package com.gemini.roadmap2.models;
 
+import jakarta.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
-
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Table(name = "steps")
-public class RoadmapStep{
-    
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+public class RoadmapStep {
+
     @Id
-    int id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
+    private String aim;
+    private String description;
 
-    String aim;
-    String description;
-
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "roadmap_id")
+    @JsonBackReference // back side to avoid recursion
     private Roadmap roadmap;
 
+    @OneToMany(mappedBy = "step", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference // parent for substeps
+    private List<RoadmapSubstep> substeps = new ArrayList<>();
 
+    public RoadmapStep() {}
 
-    @OneToMany(mappedBy = "step",cascade = CascadeType.ALL,orphanRemoval = true)
-    List<RoadmapSubstep> substeps;
-
-
-    public RoadmapStep(){}
-
-    public RoadmapStep(String aim,String description, List<RoadmapSubstep> substeps){
-        this.aim = aim;
-        this.description = description;
-        this.substeps=substeps;
-    }
-
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -64,6 +54,14 @@ public class RoadmapStep{
         this.description = description;
     }
 
+    public Roadmap getRoadmap() {
+        return roadmap;
+    }
+
+    public void setRoadmap(Roadmap roadmap) {
+        this.roadmap = roadmap;
+    }
+
     public List<RoadmapSubstep> getSubsteps() {
         return substeps;
     }
@@ -72,10 +70,19 @@ public class RoadmapStep{
         this.substeps = substeps;
     }
 
+    // helper methods
+    public void addSubstep(RoadmapSubstep substep) {
+        substeps.add(substep);
+        substep.setStep(this);
+    }
+
+    public void removeSubstep(RoadmapSubstep substep) {
+        substeps.remove(substep);
+        substep.setStep(null);
+    }
+
     @Override
     public String toString() {
         return "RoadmapStep [id=" + id + ", aim=" + aim + ", description=" + description + "]";
     }
-
-
 }

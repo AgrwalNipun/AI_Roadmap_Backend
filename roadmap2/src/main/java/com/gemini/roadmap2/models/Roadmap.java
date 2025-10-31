@@ -1,87 +1,74 @@
 package com.gemini.roadmap2.models;
 
+import jakarta.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
-
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
+@Table(name = "roadmap")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Roadmap {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  int id;
+    private String title;
+    private String keyword;
 
+    @OneToMany(mappedBy = "roadmap", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference // parent side
+    private List<RoadmapStep> steps = new ArrayList<>();
 
+    public Roadmap() {}
 
+    public int getId() {
+        return id;
+    }
 
+    public void setId(int id) {
+        this.id = id;
+    }
 
-  //title : "Java roadmap 30days"
-  String title;
+    public String getTitle() {
+        return title;
+    }
 
-  //keyword:"Java roadmap 30days "  but it ll be sorted
-  String keyword;
-
-
-
-  @OneToMany(mappedBy = "roadmap",cascade = CascadeType.ALL,orphanRemoval = true)
-  List<RoadmapStep> steps ;
-
-
-  public Roadmap() {}
-
-
-  public Roadmap(String title,List<RoadmapStep> steps){
-    this.title=title;
-    this.steps=steps;
-  }
-
-  public int getId() {
-    return id;
-  }
-
-  public void setId(int id) {
-    this.id = id;
-  }
-
-  public String getTitle() {
-    return title;
-  }
-
-  public void setTitle(String title) {
-    this.title = title;
-  }
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
     public String getKeyword() {
-    return keyword;
-  }
+        return keyword;
+    }
 
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
+    }
 
-  public void setKeyword(String keyword) {
-    this.keyword = keyword;
-  }
+    public List<RoadmapStep> getSteps() {
+        return steps;
+    }
 
+    public void setSteps(List<RoadmapStep> steps) {
+        this.steps = steps;
+    }
 
-  public List<RoadmapStep> getSteps() {
-    return steps;
-  }
+    // helper for bidirectional relationship
+    public void addStep(RoadmapStep step) {
+        steps.add(step);
+        step.setRoadmap(this);
+    }
 
-  public void setSteps(List<RoadmapStep> steps) {
-    this.steps = steps;
-  }
+    public void removeStep(RoadmapStep step) {
+        steps.remove(step);
+        step.setRoadmap(null);
+    }
 
-
-  @Override
-  public String toString() {
-    return "Roadmap [id=" + id + ", title=" + title + ", keyword=" + keyword + ", steps=" + steps + "]";
-  }
-  
-  
-
-    
+    @Override
+    public String toString() {
+        return "Roadmap [id=" + id + ", title=" + title + ", keyword=" + keyword + "]";
+    }
 }

@@ -1,42 +1,32 @@
 package com.gemini.roadmap2.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
-public class RoadmapSubstep{
-    
+@Table(name = "roadmap_substep")
+public class RoadmapSubstep {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO )
-    String Id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
+    private String aim;
+    private String description;
 
-    String aim;
-    String description;
-
-
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "step_id")
+    @JsonBackReference
     private RoadmapStep step;
 
-    public RoadmapSubstep(){}
+    public RoadmapSubstep() {}
 
-    public RoadmapSubstep(String aim,String description){
-        this.aim = aim;
-        this.description = description;
+    public Integer getId() {
+        return id;
     }
 
-    public String getId() {
-        return Id;
-    }
-
-    public void setId(String id) {
-        Id = id;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getAim() {
@@ -55,7 +45,7 @@ public class RoadmapSubstep{
         this.description = description;
     }
 
-    public RoadmapStep getStep() {
+    public RoadmapStep getStep() {   // 🔥 FIXED: was private earlier
         return step;
     }
 
@@ -65,8 +55,6 @@ public class RoadmapSubstep{
 
     @Override
     public String toString() {
-        return "RoadmapSubstep [Id=" + Id + ", aim=" + aim + ", description=" + description + "]";
+        return "RoadmapSubstep [id=" + id + ", aim=" + aim + ", description=" + description + "]";
     }
-
-
 }

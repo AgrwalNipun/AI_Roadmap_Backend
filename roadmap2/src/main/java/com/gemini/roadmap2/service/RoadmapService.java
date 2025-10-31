@@ -1,45 +1,93 @@
-    package com.gemini.roadmap2.service;
+package com.gemini.roadmap2.service;
 
-    import org.springframework.beans.factory.annotation.Autowired;
-    import org.springframework.stereotype.Service;
+import java.util.Arrays;
 
-    import com.fasterxml.jackson.databind.ObjectMapper;
-    import com.gemini.roadmap2.models.Roadmap;
-    import com.gemini.roadmap2.repository.RoadmapRepo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-    @Service
-    public class RoadmapService   {
-        
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gemini.roadmap2.models.Roadmap;
+import com.gemini.roadmap2.models.RoadmapStep;
+import com.gemini.roadmap2.repository.RoadmapRepo;
 
-        @Autowired
-        RoadmapRepo repo;
+@Service
+public class RoadmapService {
 
-        boolean keywordExists(String keyword){
-            boolean res =repo.existsByKeyword(keyword);
-            return res;
-        }
+    @Autowired
+    RoadmapRepo repo;
 
 
-        Roadmap save(String roadmapString){
+    public Roadmap getById(int id){
+        return repo.getReferenceById(id);
+    }
 
-            ObjectMapper mapper = new ObjectMapper();
 
-           try{
+    boolean keywordExists(String keyword) {
+        boolean res = repo.existsByKeyword(keyword);
+        return res;
+    }
 
-           Roadmap roadmap = mapper.readValue(roadmapString, Roadmap.class);
-           System.out.println(roadmap.toString());
+
+
+    Roadmap convertToRodmap(String roadmapString, String keywordString) {
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        try {
+            // keywordString.sort
+            char[] keywords = keywordString.toCharArray();
+            Arrays.sort(keywords);
+            String sortedKeywords = new String(keywords);
+            sortedKeywords=sortedKeywords.trim();
+            Roadmap roadmap = mapper.readValue(roadmapString, Roadmap.class);
+            roadmap.setKeyword(sortedKeywords);
+
+            //simplified title setting
+            roadmap.setTitle(keywordString);
+
+
+            System.out.println(roadmap.getSteps().size()+"????????????? Steps Loaded???????????");
+            
+            //setting steps parent and substeps parent
+
+
+
+            for(RoadmapStep step : roadmap.getSteps()){
+                
+                step.setRoadmap(roadmap);
+                for(var substep : step.getSubsteps()){
+                    substep.setStep(step);
+                }
+            }
+
+            
+
+            // System.out.println(roadmap.toString());
             return roadmap;
 
-           }catch(Exception e){
-                System.out.println(e.toString());
+        } catch (Exception e) {
+            System.out.println(e.toString());
 
-                return new Roadmap();
-
-           } 
-
-
+            return new Roadmap();
 
         }
 
+    }
+
+
+
+    Roadmap saveRoadmap(String roadmapString, String keywords){
+        System.out.println("Hereeeeee");
+
+        Roadmap roadmap = convertToRodmap(roadmapString, keywords);
+
+        Roadmap saved = repo.save(roadmap);
+        System.out.println(saved.toString()+"????????????? Saved Roadmap???????????");
+        saved.getSteps().forEach(s -> System.out.println("Saved step id = " + s.getId()));
+
+
+        return saved;
 
     }
+
+}
