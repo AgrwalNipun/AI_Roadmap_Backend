@@ -12,6 +12,8 @@ public class RoadmapSubstep {
     private Integer id;
 
     private String aim;
+
+    @Column(columnDefinition = "LONGTEXT")
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)

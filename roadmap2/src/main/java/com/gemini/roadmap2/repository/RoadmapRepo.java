@@ -11,6 +11,6 @@ import com.gemini.roadmap2.models.Roadmap;
 @Repository
 public interface RoadmapRepo extends JpaRepository<Roadmap,Integer>{
 
-    boolean existsByKeyword(String keyword);
+    boolean existsByTitle(String keyword);
 
 }

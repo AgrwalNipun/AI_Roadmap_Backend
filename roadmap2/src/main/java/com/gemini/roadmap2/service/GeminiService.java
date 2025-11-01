@@ -36,7 +36,8 @@ public class GeminiService {
         String jsonPrompt = "You are a keyword generator. " +
                 "Extract 2 to 3 short lowercase keywords " +
                 "that summarize the topic of this query. Include time constrains if it has that" +
-                "Return ONLY the keywords, no explanation, punctuation, or extra text.\n\n" +
+                "Always generate the same keyword for the same title using deterministic logic."+
+                "Return ONLY the keywords, no explanation, punctuation, or extra text.Do not send any break or /n \n\n" +
                 "Query: " + prompt + "\n\n" +
                 "Example:\n" +
                 "Input: Write a roadmap for learning Spring Boot\n" +

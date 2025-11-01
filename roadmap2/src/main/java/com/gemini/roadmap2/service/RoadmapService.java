@@ -22,10 +22,12 @@ public class RoadmapService {
     }
 
 
-    boolean keywordExists(String keyword) {
-        boolean res = repo.existsByKeyword(keyword);
-        return res;
-    }
+   public boolean titleExists(String keyword) {
+    boolean exists = repo.existsByTitle(keyword);
+    System.out.println("Checking keyword: " + keyword + " => " + exists);
+    return exists;
+}
+
 
 
 
