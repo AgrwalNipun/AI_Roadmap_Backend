@@ -47,7 +47,7 @@ public class RoadmapSubstep {
         this.description = description;
     }
 
-    public RoadmapStep getStep() {   // 🔥 FIXED: was private earlier
+    public RoadmapStep getStep() {   
         return step;
     }
 
