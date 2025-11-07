@@ -9,5 +9,5 @@ import com.gemini.roadmap2.models.User;
 public interface UserRepo extends JpaRepository<User, Integer> {
  
     Optional<User> findByEmail(String email);
-
+    
 }

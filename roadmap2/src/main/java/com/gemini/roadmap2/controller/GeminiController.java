@@ -3,6 +3,8 @@ package com.gemini.roadmap2.controller;
 import com.gemini.roadmap2.service.GeminiService;
 import com.gemini.roadmap2.service.RoadmapService;
 
+import java.util.Arrays;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,18 +25,24 @@ public class GeminiController {
     @GetMapping("/generate")
     public String generate(@RequestParam String prompt) {
         
-        
-        final String keywords = geminiService.generateKeyword(prompt);
+        System.out.println("Called the api"+prompt);
+        final String keyword = geminiService.generateKeyword(prompt);
+
+        char[] keywords = keyword.toCharArray();
+
+    Arrays.sort(keywords);
+    String sortedKeyword = new String(keywords);
+    sortedKeyword=sortedKeyword.trim();
 
 
-        if(roadmapService.titleExists(keywords)){
-
-            return "Keyword already exists in the database.";
+        if(roadmapService.existsByKeyword(sortedKeyword)){
+            System.out.println("Roadmap exists for keyword: " + sortedKeyword);
+            return roadmapService.getRoadmapByKeyword(sortedKeyword);
 
         }
 
 
-        return geminiService.generateText(keywords);
+        return geminiService.generateText(keyword);
     }
 }
 //keyword=aacdggiimmmnnoprry

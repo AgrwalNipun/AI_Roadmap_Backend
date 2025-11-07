@@ -22,13 +22,23 @@ public class RoadmapService {
     }
 
 
-   public boolean titleExists(String keyword) {
-    boolean exists = repo.existsByTitle(keyword);
-    System.out.println("Checking keyword: " + keyword + " => " + exists);
+   public boolean existsByKeyword(String sortedKeyword) {
+    
+    boolean exists = repo.existsByKeyword(sortedKeyword);
+
+    System.out.println("Checking keyword: " + sortedKeyword + " => " + exists);
     return exists;
 }
 
+    
 
+    public String getRoadmapByKeyword(String keyword){
+        Roadmap roadmap = repo.findByKeyword(keyword);
+        if(roadmap!=null){
+            return roadmap.toString();
+        }
+        return "No roadmap found for the given keyword.";
+    }
 
 
     Roadmap convertToRodmap(String roadmapString, String keywordString) {
