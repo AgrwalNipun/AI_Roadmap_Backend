@@ -32,12 +32,12 @@ public class RoadmapService {
 
     
 
-    public String getRoadmapByKeyword(String keyword){
+    public Roadmap getRoadmapByKeyword(String keyword){
         Roadmap roadmap = repo.findByKeyword(keyword);
         if(roadmap!=null){
-            return roadmap.toString();
+            return roadmap;
         }
-        return "No roadmap found for the given keyword.";
+        return null;
     }
 
 
