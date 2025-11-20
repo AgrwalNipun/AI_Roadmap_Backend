@@ -1,4 +1,4 @@
-package com.gemini.roadmap2.models;
+package com.gemini.roadmap2.models.Roadmap;
 
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonBackReference;

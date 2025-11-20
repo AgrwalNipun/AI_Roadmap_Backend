@@ -24,19 +24,20 @@ JwtAuthenticatonFilter jwtAuthenticatonFilter;
 @Bean
 public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
 
-return http.csrf()
-        .disable()
-        .authorizeHttpRequests()
-        .requestMatchers("/auth/**")
-        .permitAll()
-        .anyRequest()
-        .authenticated()
-        .and()
-        .sessionManagement()
-        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        .and()
+return http.csrf(csrf -> csrf
+        .disable())
+        .authorizeHttpRequests(requests -> requests
+                .requestMatchers("/auth/**",
+                        "/v3/api-docs/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html")
+                .permitAll()
+                .anyRequest()
+                .authenticated())
+        .sessionManagement(management -> management
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authenticationProvider(authenticationProvider)
-        .addFilterBefore(jwtAuthenticatonFilter,UsernamePasswordAuthenticationFilter.class)
+        .addFilterBefore(jwtAuthenticatonFilter, UsernamePasswordAuthenticationFilter.class)
         .build();
 
 }

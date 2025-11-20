@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.gemini.roadmap2.DTOs.LoginUserDto;
 import com.gemini.roadmap2.DTOs.RegisterUserDto;
+import com.gemini.roadmap2.DTOs.RegisterUserResponseDto;
 import com.gemini.roadmap2.models.User;
 import com.gemini.roadmap2.repository.UserRepo;
 
@@ -22,14 +23,22 @@ public class AuthenticationService {
     @Autowired
     AuthenticationManager authManager;
 
-    public User signup(RegisterUserDto input){
+    public RegisterUserResponseDto signup(RegisterUserDto input){
 
         User user = new User();
         user.setFullName(input.getfullName());
         user.setEmail(input.getEmail());
         user.setPassword(passwordEncoder.encode(input.getPassword()));
 
-        return userRepo.save(user);
+        User registeredUser =  userRepo.save(user);
+
+        RegisterUserResponseDto registerUserResponseDto = new RegisterUserResponseDto();
+
+        registerUserResponseDto.setEmail(registeredUser.getEmail());
+        registerUserResponseDto.setFullName(registeredUser.getFullName());
+        registerUserResponseDto.setId(registeredUser.getId());
+
+        return registerUserResponseDto;
 
     }
 
@@ -44,6 +53,10 @@ public class AuthenticationService {
 
         return userRepo.findByEmail(input.getEmail()).orElseThrow();
 
+    }
+
+    public User getUserByEmail(String email) {
+        return userRepo.findByEmail(email).orElseThrow();   
     }
 
 }

@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gemini.roadmap2.models.Roadmap;
-import com.gemini.roadmap2.models.RoadmapStep;
+import com.gemini.roadmap2.models.Roadmap.Roadmap;
+import com.gemini.roadmap2.models.Roadmap.RoadmapStep;
 import com.gemini.roadmap2.repository.RoadmapRepo;
 
 @Service

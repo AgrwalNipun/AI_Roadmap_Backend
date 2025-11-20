@@ -1,20 +1,28 @@
 package com.gemini.roadmap2.controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.gemini.roadmap2.DTOs.LoginResponse;
 import com.gemini.roadmap2.DTOs.LoginUserDto;
 import com.gemini.roadmap2.DTOs.RegisterUserDto;
+import com.gemini.roadmap2.DTOs.RegisterUserResponseDto;
 import com.gemini.roadmap2.models.User;
 import com.gemini.roadmap2.service.AuthenticationService;
 import com.gemini.roadmap2.service.JwtService;
 
-@Controller
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.servlet.http.HttpServletRequest;
+
+import org.springframework.web.bind.annotation.GetMapping;
+
+
+@RestController
 @RequestMapping("/auth")
 @CrossOrigin
 
@@ -30,12 +38,30 @@ public class AuthenticationController {
         this.authenticationService = authenticationService;
     }
 
-    @PostMapping("/signup")
-    public ResponseEntity<User> register(@RequestBody RegisterUserDto registerUserDto) {
-        User registeredUser = authenticationService.signup(registerUserDto);
 
-        return ResponseEntity.ok(registeredUser);
+    @Operation(summary = "Register a new user", description = "Creates a new user account with the provided details.")
+    @PostMapping("/signup")
+    public ResponseEntity<RegisterUserResponseDto> register(@RequestBody RegisterUserDto registerUserDto) {
+        
+
+        
+        RegisterUserResponseDto registerUserResponseDto = authenticationService.signup(registerUserDto);
+        
+        // new RegisterUserResponseDto();
+
+        
+
+
+        return ResponseEntity.ok(registerUserResponseDto);
+
+
+
+
     }
+
+
+
+
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto) {
@@ -48,4 +74,29 @@ public class AuthenticationController {
         return ResponseEntity.ok(loginResponse);
     }
 
+
+
+
+
+@GetMapping("/me")
+public ResponseEntity<User> getCurrentUser(
+    @Parameter(hidden = true) HttpServletRequest request) {
+    String authHeader = request.getHeader("Authorization");
+
+    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        return ResponseEntity.status(401).build();
+    }
+
+    String token = authHeader.substring(7);
+
+    // Extract email from JWT
+    String email = jwtService.extractUsername(token);
+
+    // Load the user
+    User user = authenticationService.getUserByEmail(email);
+
+    return ResponseEntity.ok(user);
+}
+
+    
 }
