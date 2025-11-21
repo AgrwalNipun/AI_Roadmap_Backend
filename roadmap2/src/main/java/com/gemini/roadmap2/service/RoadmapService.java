@@ -1,7 +1,5 @@
 package com.gemini.roadmap2.service;
 
-import java.util.Arrays;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,16 +39,12 @@ public class RoadmapService {
     }
 
 
-    Roadmap convertToRodmap(String roadmapString, String keywordString) {
+    Roadmap convertToRodmap(String roadmapString, String keywordString,String sortedKeywords) {
 
         ObjectMapper mapper = new ObjectMapper();
 
         try {
             // keywordString.sort
-            char[] keywords = keywordString.toCharArray();
-            Arrays.sort(keywords);
-            String sortedKeywords = new String(keywords);
-            sortedKeywords=sortedKeywords.trim();
             Roadmap roadmap = mapper.readValue(roadmapString, Roadmap.class);
             roadmap.setKeyword(sortedKeywords);
 
@@ -88,10 +82,10 @@ public class RoadmapService {
 
 
 
-    Roadmap saveRoadmap(String roadmapString, String keywords){
+    Roadmap saveRoadmap(String roadmapString, String keywords, String sortedKeyword){
         System.out.println("Hereeeeee");
 
-        Roadmap roadmap = convertToRodmap(roadmapString, keywords);
+        Roadmap roadmap = convertToRodmap(roadmapString, keywords,sortedKeyword);
 
         Roadmap saved = repo.save(roadmap);
         System.out.println(saved.toString()+"????????????? Saved Roadmap???????????");

@@ -1,9 +1,8 @@
 package com.gemini.roadmap2.controller;
 
+import com.gemini.roadmap2.models.Roadmap.Roadmap;
 import com.gemini.roadmap2.service.GeminiService;
-import com.gemini.roadmap2.service.RoadmapService;
 
-import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class GeminiController {
     @Autowired
     private GeminiService geminiService;
-    @Autowired
-    private RoadmapService roadmapService;
+    // @Autowired
+    // private RoadmapProgressService progressService;
 
 
     public GeminiController(GeminiService geminiService) {
@@ -27,27 +26,17 @@ public class GeminiController {
     }
 
     @GetMapping("/generate")
-    public ResponseEntity<?> generate(@RequestParam String prompt) {
-        
-        System.out.println("Called the api"+prompt);
-        final String keyword = geminiService.generateKeyword(prompt);
+    public ResponseEntity<Roadmap> generate(@RequestParam String prompt) {
 
-        char[] keywords = keyword.toCharArray();
+        System.out.println("Called the api" + prompt);
+        // final String keyword = geminiService.generateKeyword(prompt);
+        Roadmap roadmap = geminiService.generateText(prompt);
 
-    Arrays.sort(keywords);
-    String sortedKeyword = new String(keywords);
-    sortedKeyword=sortedKeyword.trim();
- 
+        // progressService.assignUserToRoadmap(userService.getLoggedInUser(), roadmap);
 
-        if(roadmapService.existsByKeyword(sortedKeyword)){
-            System.out.println("Roadmap exists for keyword: " + sortedKeyword);
-            return ResponseEntity.ok(roadmapService.getRoadmapByKeyword(sortedKeyword));
-
-        }
-
-
-        return ResponseEntity.ok(geminiService.generateText(keyword));
+        return ResponseEntity.ok(roadmap);
     }
+
 }
-//keyword=aacdggiimmmnnoprry
-//keyword=aaaacdggghiiiiiilmmmmmnnnoooopprrrstttyz
+// keyword=aacdggiimmmnnoprry
+// keyword=aaaacdggghiiiiiilmmmmmnnnoooopprrrstttyz

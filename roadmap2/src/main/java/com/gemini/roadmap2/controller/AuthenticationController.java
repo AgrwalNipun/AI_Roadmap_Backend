@@ -21,16 +21,14 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.web.bind.annotation.GetMapping;
 
-
 @RestController
 @RequestMapping("/auth")
 @CrossOrigin
 
 public class AuthenticationController {
-    
 
     private final JwtService jwtService;
-    
+
     private final AuthenticationService authenticationService;
 
     public AuthenticationController(JwtService jwtService, AuthenticationService authenticationService) {
@@ -38,30 +36,17 @@ public class AuthenticationController {
         this.authenticationService = authenticationService;
     }
 
-
     @Operation(summary = "Register a new user", description = "Creates a new user account with the provided details.")
     @PostMapping("/signup")
     public ResponseEntity<RegisterUserResponseDto> register(@RequestBody RegisterUserDto registerUserDto) {
-        
 
-        
         RegisterUserResponseDto registerUserResponseDto = authenticationService.signup(registerUserDto);
-        
+
         // new RegisterUserResponseDto();
-
-        
-
 
         return ResponseEntity.ok(registerUserResponseDto);
 
-
-
-
     }
-
-
-
-
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto) {
@@ -69,34 +54,39 @@ public class AuthenticationController {
 
         String jwtToken = jwtService.generateToken(authenticatedUser);
 
-        LoginResponse loginResponse = new LoginResponse().setToken(jwtToken).setExpiresIn(jwtService.getExpirationTime());
+        LoginResponse loginResponse = new LoginResponse().setToken(jwtToken)
+                .setExpiresIn(jwtService.getExpirationTime());
 
         return ResponseEntity.ok(loginResponse);
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<RegisterUserResponseDto> getCurrentUser(
+            @Parameter(hidden = true) HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
 
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).build();
+        }
 
+        String token = authHeader.substring(7);
 
+        // Extract email from JWT
+        String email = jwtService.extractUsername(token);
 
-@GetMapping("/me")
-public ResponseEntity<User> getCurrentUser(
-    @Parameter(hidden = true) HttpServletRequest request) {
-    String authHeader = request.getHeader("Authorization");
+        // Load the user
+        User user = authenticationService.getUserByEmail(email);
 
-    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-        return ResponseEntity.status(401).build();
+        RegisterUserResponseDto dto = new RegisterUserResponseDto();
+
+        dto.setEmail(user.getEmail());
+        dto.setFullName(user.getFullName());
+        dto.setId(user.getId());
+
+        return ResponseEntity.ok(dto);
     }
 
-    String token = authHeader.substring(7);
 
-    // Extract email from JWT
-    String email = jwtService.extractUsername(token);
 
-    // Load the user
-    User user = authenticationService.getUserByEmail(email);
 
-    return ResponseEntity.ok(user);
-}
-
-    
 }

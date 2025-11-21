@@ -3,7 +3,7 @@ package com.gemini.roadmap2.configs;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.servlet.HandlerExceptionResolver;
+// import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.lang.NonNull;
 
 import jakarta.servlet.FilterChain;
@@ -25,8 +25,8 @@ import com.gemini.roadmap2.service.JwtService;
 @Component
 public class JwtAuthenticatonFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private HandlerExceptionResolver handlerExceptionResolver;
+    // @Autowired
+    // private HandlerExceptionResolver handlerExceptionResolver;
 
     @Autowired
     private JwtService jwtService;
@@ -85,8 +85,9 @@ public class JwtAuthenticatonFilter extends OncePerRequestFilter {
 
             filterChain.doFilter(request, response);
         } catch (Exception exception) {
-            System.out.println("💥 Exception in JWT filter: " + exception.getMessage());
-            handlerExceptionResolver.resolveException(request, response, null, exception);
+            // System.out.println("💥 Exception in JWT filter: " + exception.getMessage());
+            // handlerExceptionResolver.resolveException(request, response, null, exception);
+            throw exception;
         }
     }
 }

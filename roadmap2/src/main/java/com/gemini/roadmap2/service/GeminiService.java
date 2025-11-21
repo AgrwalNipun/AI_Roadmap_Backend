@@ -1,8 +1,12 @@
 package com.gemini.roadmap2.service;
 
+import com.gemini.roadmap2.models.User;
+import com.gemini.roadmap2.models.Roadmap.Roadmap;
 import com.google.genai.Client;
 import com.google.genai.types.GenerateContentConfig;
 import com.google.genai.types.GenerateContentResponse;
+
+import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,21 +27,25 @@ public class GeminiService {
     }
 
     @Autowired
-    RoadmapService roadmapService;
+    private RoadmapService roadmapService;
 
-    /////////// Generates Keyword for the prompth
+
+    @Autowired
+    private UserSubstepProgressService userSubstepProgressService;
+
+    @Autowired
+    private UserService userService;
+
+
+    /////////// Generates Keyword for the prompt
 
     public String generateKeyword(String prompt) {
-        // Timer timer = new Timer();
-        long startTime = System.currentTimeMillis();
-
-        // System.out.println(prompt+"?????????????");
-
         String jsonPrompt = "You are a keyword generator. " +
                 "Extract 2 to 3 short lowercase keywords " +
                 "that summarize the topic of this query. Include time constrains if it has that" +
-                "Always generate the same keyword for the same title using deterministic logic."+
-                "Return ONLY the keywords, no explanation, punctuation, or extra text.Do not send any break or /n \n\n" +
+                "Always generate the same keyword for the same title using deterministic logic." +
+                "Return ONLY the keywords, no explanation, punctuation, or extra text.Do not send any break or /n \n\n"
+                +
                 "Query: " + prompt + "\n\n" +
                 "Example:\n" +
                 "Input: Write a roadmap for learning Spring Boot\n" +
@@ -53,20 +61,35 @@ public class GeminiService {
 
                 GenerateContentConfig.builder().temperature(val).build());
 
-        long endTime = System.currentTimeMillis();
-
-        System.out.println(endTime - startTime + "ms????Keyword Generation Time???????????");
 
         return response.text();
     }
 
-
-
-
-
     /// Generates Complete Roadmap from keywords
-    public String generateText(String keywords) {
-        String jsonPrompt = keywords +
+    @SuppressWarnings("unused")
+    public Roadmap generateText(String prompt) {
+
+        String keyword = generateKeyword(prompt);
+
+        char[] keywords = keyword.toCharArray();
+
+        Arrays.sort(keywords);
+        String sortedKeyword = new String(keywords);
+        sortedKeyword = sortedKeyword.trim();
+
+        Roadmap roadmap = new Roadmap();
+        if(roadmapService.existsByKeyword(sortedKeyword)){
+            System.out.println("Roadmap exists for keyword: " + sortedKeyword);
+             roadmap =  roadmapService.getRoadmapByKeyword(sortedKeyword);
+
+
+
+
+        }
+
+
+else{
+        String jsonPrompt = keyword +
                 " Do not send anything else. Respond ONLY in JSON format like this. Make it have a tree-like structure if necessary:\n"
                 +
                 "{\n" +
@@ -86,18 +109,11 @@ public class GeminiService {
                 "  ]\n" +
                 "} ";
 
-        long startTime = System.currentTimeMillis();
 
-        // GenerateContentConfig config2 = GenerateContentConfig./
         
-        // .newBuilder()
-    // .setResponseMimeType("application/json")
-    // .build();
-
-
         GenerateContentConfig config = GenerateContentConfig.builder()
-        .responseMimeType("application/json")
-        // setResponseFormat("JSON")
+                .responseMimeType("application/json")
+                // setResponseFormat("JSON")
                 // .maxOutputTokens(4096)
                 .temperature(0.2f)
                 .build();
@@ -107,17 +123,22 @@ public class GeminiService {
                 jsonPrompt,
                 config);
 
-        long endTime = System.currentTimeMillis();
 
-        System.out.println(endTime - startTime + "ms????Complete Roadmap Generation TIme???????????");
 
         String textRes = response.text().replaceAll("```json", "");
         textRes = textRes.replaceAll("```", "");
 
-        roadmapService.saveRoadmap(textRes, keywords);
-        // System.out.println("///////////Success");
+         roadmap = roadmapService.saveRoadmap(textRes, keyword, sortedKeyword);
+}
 
-        return textRes;
+
+            User user = userService.getLoggedInUser();
+
+            userSubstepProgressService.initializeRoadmapProgress(user, roadmap);
+
+
+            return roadmap; 
+        // System.out.println("///////////Success");
     }
 
 }
