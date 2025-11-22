@@ -1,5 +1,6 @@
-package com.gemini.roadmap2.models;
+package com.gemini.roadmap2.models.Progress;
 
+import com.gemini.roadmap2.models.User;
 import com.gemini.roadmap2.models.Roadmap.RoadmapSubstep;
 
 import jakarta.persistence.Entity;

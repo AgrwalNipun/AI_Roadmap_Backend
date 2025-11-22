@@ -1,8 +1,10 @@
 package com.gemini.roadmap2.controller;
 
+import com.gemini.roadmap2.models.User;
 import com.gemini.roadmap2.models.Roadmap.Roadmap;
 import com.gemini.roadmap2.service.GeminiService;
-
+import com.gemini.roadmap2.service.UserService;
+import com.gemini.roadmap2.service.UserSubstepProgressService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +23,13 @@ public class GeminiController {
     // private RoadmapProgressService progressService;
 
 
+
+    @Autowired
+    private UserSubstepProgressService userSubstepProgressService;
+
+    @Autowired
+    private UserService userService;
+
     public GeminiController(GeminiService geminiService) {
         this.geminiService = geminiService;
     }
@@ -33,6 +42,11 @@ public class GeminiController {
         Roadmap roadmap = geminiService.generateText(prompt);
 
         // progressService.assignUserToRoadmap(userService.getLoggedInUser(), roadmap);
+
+            User user = userService.getLoggedInUser();
+
+            userSubstepProgressService.initializeRoadmapProgress(user, roadmap);
+
 
         return ResponseEntity.ok(roadmap);
     }

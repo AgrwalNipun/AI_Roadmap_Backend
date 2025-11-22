@@ -1,6 +1,5 @@
 package com.gemini.roadmap2.service;
 
-import com.gemini.roadmap2.models.User;
 import com.gemini.roadmap2.models.Roadmap.Roadmap;
 import com.google.genai.Client;
 import com.google.genai.types.GenerateContentConfig;
@@ -30,11 +29,6 @@ public class GeminiService {
     private RoadmapService roadmapService;
 
 
-    @Autowired
-    private UserSubstepProgressService userSubstepProgressService;
-
-    @Autowired
-    private UserService userService;
 
 
     /////////// Generates Keyword for the prompt
@@ -130,11 +124,6 @@ else{
 
          roadmap = roadmapService.saveRoadmap(textRes, keyword, sortedKeyword);
 }
-
-
-            User user = userService.getLoggedInUser();
-
-            userSubstepProgressService.initializeRoadmapProgress(user, roadmap);
 
 
             return roadmap; 

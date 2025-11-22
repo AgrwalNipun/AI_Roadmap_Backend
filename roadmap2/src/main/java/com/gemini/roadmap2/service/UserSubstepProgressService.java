@@ -11,12 +11,15 @@ import org.springframework.stereotype.Service;
 import com.gemini.roadmap2.DTOs.RoadmapResponseDto;
 import com.gemini.roadmap2.DTOs.StepDto;
 import com.gemini.roadmap2.DTOs.SubstepDto;
+import com.gemini.roadmap2.DTOs.UpdateProgressDto;
 import com.gemini.roadmap2.models.User;
-import com.gemini.roadmap2.models.UserSubstepProgress;
+import com.gemini.roadmap2.models.Progress.UserRoadmapProgress;
+import com.gemini.roadmap2.models.Progress.UserSubstepProgress;
 import com.gemini.roadmap2.models.Roadmap.Roadmap;
 import com.gemini.roadmap2.models.Roadmap.RoadmapStep;
 import com.gemini.roadmap2.models.Roadmap.RoadmapSubstep;
 import com.gemini.roadmap2.repository.RoadmapRepo;
+import com.gemini.roadmap2.repository.UserRoadmapProgressRepo;
 import com.gemini.roadmap2.repository.UserSubstepProgressRepo;
 
 @Service
@@ -25,100 +28,156 @@ public class UserSubstepProgressService {
     @Autowired
     private UserSubstepProgressRepo progressRepo;
 
-
     @Autowired
     private RoadmapRepo roadmapRepo;
 
+    @Autowired
+    private UserRoadmapProgressRepo roadmapProgressRepo;
+
     public void initializeRoadmapProgress(User user, Roadmap roadmap) {
 
-    List<UserSubstepProgress> list = new ArrayList<>();
+        List<UserSubstepProgress> list = new ArrayList<>();
 
-    for (RoadmapStep step : roadmap.getSteps()) {
-        for (RoadmapSubstep sub : step.getSubsteps()) {
+        for (RoadmapStep step : roadmap.getSteps()) {
+            for (RoadmapSubstep sub : step.getSubsteps()) {
 
-            UserSubstepProgress p = new UserSubstepProgress();
-            p.setUser(user);
-            p.setRoadmapSubstep(sub);
-            p.setCompleted(false);
+                UserSubstepProgress p = new UserSubstepProgress();
+                p.setUser(user);
+                p.setRoadmapSubstep(sub);
+                p.setCompleted(false);
 
-            list.add(p);
-        }
-    }
-
-    // batch save = faster than saving inside loop
-    progressRepo.saveAll(list);
-    System.out.println(list+"////////////////////////////////");
-}
-
-public RoadmapResponseDto getRoadmapForUser(Long roadmapId, Long userId) {
-
-    Roadmap roadmap = roadmapRepo.findById(roadmapId.intValue())
-            .orElseThrow(() -> new RuntimeException("Not found"));
-
-    // 1) Fetch all progress for this user
-    List<UserSubstepProgress> progressList = progressRepo.findByUserId(userId);
-
-
-    for(UserSubstepProgress progress : progressList){
-        System.out.println(progress.getId()+progress.getUser().getEmail());
-    }
-
-    // List<Long> progressIds = progressList.stream().map()
-    List<Long> progressIds = progressList.stream()
-        .map(p -> p.getRoadmapSubstep().getId().longValue())
-        .toList();
-;
-
-
-    if(!progressIds.contains(roadmap.getSteps().get(0).getSubsteps().get(0).getId().longValue())){
-        throw new RuntimeException("You cannot access this roadmap");
-    }
-
-    // 2) Convert to map → O(1) lookup
-    Map<Object, Boolean> progressMap = progressList.stream()
-            .collect(Collectors.toMap(
-                    p -> p.getRoadmapSubstep().getId(),
-                    UserSubstepProgress::isCompleted
-            ));
-
-    // 3) Build final Dto
-    RoadmapResponseDto Dto = new RoadmapResponseDto();
-    Dto.setId((long)roadmap.getId());
-    Dto.setTitle(roadmap.getTitle());
-
-    List<StepDto> stepDtos = new ArrayList<>();
-
-    for (RoadmapStep step : roadmap.getSteps()) {
-
-        StepDto stepDto = new StepDto();
-        stepDto.setId(step.getId());
-        stepDto.setAim(step.getAim());
-        stepDto.setDescription(step.getDescription());
-
-        List<SubstepDto> substepDtos = new ArrayList<>();
-
-        for (RoadmapSubstep sub : step.getSubsteps()) {
-
-
-            SubstepDto sd = new SubstepDto();
-            sd.setId(sub.getId());
-            sd.setAim(sub.getAim());
-            sd.setDescription(sub.getDescription());
-
-            // 👇 Check completion using map (no nested loops)
-            sd.setCompleted(progressMap.getOrDefault(sub.getId(), false));
-
-            substepDtos.add(sd);
+                list.add(p);
+            }
         }
 
-        stepDto.setSubsteps(substepDtos);
-        stepDtos.add(stepDto);
+        // batch save = faster than saving inside loop
+        progressRepo.saveAll(list);
+        // System.out.println(list + "////////////////////////////////");
+
+        UserRoadmapProgress rp = new UserRoadmapProgress();
+
+        rp.setRoadmap(roadmap);
+        rp.setUser(user);
+        rp.setSubstepsCompleted(0);
+        rp.setTotalSubsteps(list.size());
+
+        roadmapProgressRepo.save(rp);
+
+        System.out.println(rp.toString() + "SAVED");
+
     }
 
-    Dto.setSteps(stepDtos);
-    return Dto;
-}
+    public RoadmapResponseDto getRoadmapForUser(Long roadmapId, Long userId) {
 
+        Roadmap roadmap = roadmapRepo.findById(roadmapId.intValue())
+                .orElseThrow(() -> new RuntimeException("Not found"));
 
+        // 1) Fetch all progress for this user
 
+        // for(UserSubstepProgress progress : progressList){
+        // System.out.println(progress.getId()+progress.getUser().getEmail());
+        // }
+
+        // List<Long> progressIds = progressList.stream().map()
+
+        List<Integer> substepIds = roadmap.getSteps().stream()
+                .flatMap(step -> step.getSubsteps().stream())
+                .map(RoadmapSubstep::getId)
+                .collect(Collectors.toList());
+
+        List<UserSubstepProgress> progressList = progressRepo.findByUserIdAndRoadmapSubstepIdIn(userId, substepIds);
+
+        if (progressList.isEmpty()) {
+            throw new RuntimeException("You cannot access this roadmap");
+        }
+
+        // 2) Conv-ert to map → O(1) lookup
+        Map<Object, Boolean> progressMap = progressList.stream()
+                .collect(Collectors.toMap(
+                        p -> p.getRoadmapSubstep().getId(),
+                        UserSubstepProgress::isCompleted));
+
+        // 3) Build final Dto
+        RoadmapResponseDto Dto = new RoadmapResponseDto();
+        Dto.setId((long) roadmap.getId());
+        Dto.setTitle(roadmap.getTitle());
+
+        List<StepDto> stepDtos = new ArrayList<>();
+
+        for (RoadmapStep step : roadmap.getSteps()) {
+
+            StepDto stepDto = new StepDto();
+            stepDto.setId(step.getId());
+            stepDto.setAim(step.getAim());
+            stepDto.setDescription(step.getDescription());
+
+            List<SubstepDto> substepDtos = new ArrayList<>();
+
+            for (RoadmapSubstep sub : step.getSubsteps()) {
+
+                SubstepDto sd = new SubstepDto();
+                sd.setId(sub.getId());
+                sd.setAim(sub.getAim());
+                sd.setDescription(sub.getDescription());
+
+                // 👇 Check completion using map (no nested loops)
+                sd.setCompleted(progressMap.getOrDefault(sub.getId(), false));
+
+                substepDtos.add(sd);
+            }
+
+            stepDto.setSubsteps(substepDtos);
+            stepDtos.add(stepDto);
+        }
+
+        Dto.setSteps(stepDtos);
+        return Dto;
+    }
+
+    public UpdateProgressDto updateSubstepProgress(UpdateProgressDto dto, User user) {
+
+        long substepId = dto.getId();
+        long userId = user.getId();
+
+        // System.out.println(substepId);
+        UserSubstepProgress progress = progressRepo.findByUserIdAndRoadmapSubstepId(userId, substepId);
+        // System.out.println(progress.getId()+"//"+progress.getUser()+"//"+progress.isCompleted());
+
+        // System.out.println("Fetched progress row:");
+        // System.out.println("progress_id = " + progress.getId());
+        // System.out.println("substep_id = " + progress.getRoadmapSubstep().getId());
+        // System.out.println("completed_before = " + progress.isCompleted());
+
+        if (dto.isCompleted() != progress.isCompleted()) {
+
+            int roadmapId = progress.getRoadmapSubstep().getStep().getRoadmap().getId();
+
+            UserRoadmapProgress roadmapProgress = roadmapProgressRepo.findByUserIdAndRoadmapId(userId,
+                    (long) roadmapId);
+
+            if (dto.isCompleted() && !progress.isCompleted()) {
+                // increment count
+                roadmapProgress.setSubstepsCompleted(
+                        roadmapProgress.getSubstepsCompleted() + 1);
+            } else if (!dto.isCompleted() && progress.isCompleted()) {
+                // decrement count
+                roadmapProgress.setSubstepsCompleted(
+                        roadmapProgress.getSubstepsCompleted() - 1);
+            }
+
+            roadmapProgressRepo.save(roadmapProgress);
+        }
+
+        progress.setCompleted(dto.isCompleted());
+
+        UserSubstepProgress progress2 = progressRepo.save(progress);
+
+        UpdateProgressDto resDto = new UpdateProgressDto();
+
+        resDto.setId(progress2.getRoadmapSubstep().getId());
+        resDto.setCompleted(progress2.isCompleted());
+
+        return resDto;
+
+    }
 }
