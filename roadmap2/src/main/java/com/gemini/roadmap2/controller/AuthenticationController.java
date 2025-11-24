@@ -23,8 +23,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin
-
 public class AuthenticationController {
 
     private final JwtService jwtService;

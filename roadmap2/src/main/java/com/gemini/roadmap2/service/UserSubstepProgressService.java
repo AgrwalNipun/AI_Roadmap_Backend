@@ -8,10 +8,12 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.gemini.roadmap2.DTOs.RoadmapProgress;
 import com.gemini.roadmap2.DTOs.RoadmapResponseDto;
 import com.gemini.roadmap2.DTOs.StepDto;
 import com.gemini.roadmap2.DTOs.SubstepDto;
 import com.gemini.roadmap2.DTOs.UpdateProgressDto;
+import com.gemini.roadmap2.DTOs.UserProgressDto;
 import com.gemini.roadmap2.models.User;
 import com.gemini.roadmap2.models.Progress.UserRoadmapProgress;
 import com.gemini.roadmap2.models.Progress.UserSubstepProgress;
@@ -180,4 +182,30 @@ public class UserSubstepProgressService {
         return resDto;
 
     }
+
+    public UserProgressDto getAllProgressByUserId(Long userId){
+        List<UserRoadmapProgress> progresses= roadmapProgressRepo.findByUserId(userId);
+
+        UserProgressDto dto = new UserProgressDto();
+        
+        if(progresses.size()>=1)
+        dto.setUserId(progresses.get(0).getUser().getId());
+        
+        
+        List<RoadmapProgress> roadmaps =  new ArrayList<>();
+        
+        for(UserRoadmapProgress progress : progresses){
+            RoadmapProgress temp = new RoadmapProgress();
+            temp.setRoadmap(progress.getRoadmap());
+            temp.setSubstepsCompleted(progress.getSubstepsCompleted());
+            temp.setTotalSubsteps(progress.getTotalSubsteps()); 
+            roadmaps.add(temp);
+        }
+        dto.setRoadmaps(roadmaps);
+
+        return dto;
+
+        
+    }
+
 }

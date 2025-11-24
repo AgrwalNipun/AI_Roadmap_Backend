@@ -1,5 +1,6 @@
 package com.gemini.roadmap2.controller;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.gemini.roadmap2.DTOs.RoadmapResponseDto;
 import com.gemini.roadmap2.DTOs.UpdateProgressDto;
+import com.gemini.roadmap2.DTOs.UserProgressDto;
 import com.gemini.roadmap2.models.User;
 import com.gemini.roadmap2.service.RoadmapService;
 import com.gemini.roadmap2.service.UserService;
@@ -18,8 +20,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
-@CrossOrigin
-
 public class RoadmapController {
 
     @Autowired
@@ -51,5 +51,17 @@ public class RoadmapController {
         // return entity;
 
     }
+
+
+    @GetMapping("/get/all")
+    public UserProgressDto getAllUserRoadmaps() {
+
+        User user = userService.getLoggedInUser();
+
+        return progressService.getAllProgressByUserId((long)user.getId());
+
+
+    }
+
 
 }
