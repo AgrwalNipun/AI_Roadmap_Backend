@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
 @RequestMapping("/auth")
-public class AuthenticationController {
+    public class AuthenticationController {
 
     private final JwtService jwtService;
 
