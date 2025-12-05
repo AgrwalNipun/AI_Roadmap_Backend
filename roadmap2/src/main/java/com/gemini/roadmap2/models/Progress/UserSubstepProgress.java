@@ -9,14 +9,20 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
+@Table(name = "user_substep_progress", uniqueConstraints = @UniqueConstraint(columnNames = { "user_id",
+        "roadmap_substep_id" })
+
+)
 public class UserSubstepProgress {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
@@ -24,7 +30,6 @@ public class UserSubstepProgress {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
-
 
     @ManyToOne
     @JoinColumn(name = "substep_id")

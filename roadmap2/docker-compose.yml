@@ -1,0 +1,49 @@
+
+services:
+  app:
+    build: .
+    image: my-spring-app
+    container_name: spring-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/roadmap_ai_v2?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      
+      # Pulled from Windows environment variables (setx)
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+
+      # Hibernate
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+      # Your JWT Key from application.properties
+      SECURITY_JWT_SECRET_KEY: ${ROADMAP_AI_JWT_KEY}
+
+      # Any other Spring secrets you added via setx
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+
+    restart: always
+
+
+  mysql:
+    image: mysql:8
+    container_name: mysql-db
+    ports:
+      - "3307:3306"
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_DATABASE: roadmap_ai_v2
+
+      # Also pulled from your OS environment
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_USER: userRandom
+      MYSQL_PASSWORD: passwordRandom
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: always
+
+volumes:
+  mysql_data:

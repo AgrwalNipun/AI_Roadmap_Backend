@@ -74,14 +74,7 @@ public class UserSubstepProgressService {
         Roadmap roadmap = roadmapRepo.findById(roadmapId.intValue())
                 .orElseThrow(() -> new RuntimeException("Not found"));
 
-        // 1) Fetch all progress for this user
-
-        // for(UserSubstepProgress progress : progressList){
-        // System.out.println(progress.getId()+progress.getUser().getEmail());
-        // }
-
-        // List<Long> progressIds = progressList.stream().map()
-
+        
         List<Integer> substepIds = roadmap.getSteps().stream()
                 .flatMap(step -> step.getSubsteps().stream())
                 .map(RoadmapSubstep::getId)
@@ -93,11 +86,12 @@ public class UserSubstepProgressService {
             throw new RuntimeException("You cannot access this roadmap");
         }
 
-        // 2) Conv-ert to map → O(1) lookup
         Map<Object, Boolean> progressMap = progressList.stream()
                 .collect(Collectors.toMap(
                         p -> p.getRoadmapSubstep().getId(),
-                        UserSubstepProgress::isCompleted));
+                        UserSubstepProgress::isCompleted,
+                        (a,b)->a||b
+                    ));
 
         // 3) Build final Dto
         RoadmapResponseDto Dto = new RoadmapResponseDto();
@@ -117,7 +111,7 @@ public class UserSubstepProgressService {
 
             for (RoadmapSubstep sub : step.getSubsteps()) {
 
-                SubstepDto sd = new SubstepDto();
+                SubstepDto sd = new SubstepDto();   
                 sd.setId(sub.getId());
                 sd.setAim(sub.getAim());
                 sd.setDescription(sub.getDescription());
