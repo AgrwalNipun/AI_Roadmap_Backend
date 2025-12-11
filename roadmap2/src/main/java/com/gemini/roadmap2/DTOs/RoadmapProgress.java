@@ -11,7 +11,9 @@ import lombok.Setter;
 public class RoadmapProgress{
 
         // long id;
-        Roadmap roadmap;
+        // Roadmap roadmap;
+        String roadmapTitle;
+        long id;
         int substepsCompleted;
         int totalSubsteps;
 }

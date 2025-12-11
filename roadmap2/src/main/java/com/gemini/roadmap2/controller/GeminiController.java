@@ -32,11 +32,13 @@ public class GeminiController {
     }
 
     @GetMapping("/generate")
-    public ResponseEntity<Roadmap> generate(@RequestParam String prompt) {
+    public ResponseEntity<?> generate(@RequestParam String prompt) {
 
         System.out.println("Called the api" + prompt);
         // final String keyword = geminiService.generateKeyword(prompt);
-        Roadmap roadmap = geminiService.generateText(prompt);
+
+
+        try{      Roadmap roadmap = geminiService.generateText(prompt);
 
         // progressService.assignUserToRoadmap(userService.getLoggedInUser(), roadmap);
 
@@ -46,6 +48,12 @@ public class GeminiController {
 
 
         return ResponseEntity.ok(roadmap);
+    }
+    catch(Exception e){
+        return ResponseEntity.badRequest().body(e.getMessage());
+        
+    }
+  
     }
 
 }

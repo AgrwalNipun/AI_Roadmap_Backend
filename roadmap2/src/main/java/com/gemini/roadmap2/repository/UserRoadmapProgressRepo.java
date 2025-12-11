@@ -12,6 +12,9 @@ public interface UserRoadmapProgressRepo extends JpaRepository<UserRoadmapProgre
 
     List<UserRoadmapProgress> findByUserId(Long userId);
 
+    boolean existsByUserIdAndRoadmapId(Long userId, Long roadmapId);
+
+
 }
 
 

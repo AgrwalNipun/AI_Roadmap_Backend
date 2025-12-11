@@ -36,7 +36,19 @@ public class UserSubstepProgressService {
     @Autowired
     private UserRoadmapProgressRepo roadmapProgressRepo;
 
+
+    boolean existsByUserIdAndRoadmapId(long userId, long roadmapId){
+        return roadmapProgressRepo.existsByUserIdAndRoadmapId(userId,roadmapId);
+    }
+
     public void initializeRoadmapProgress(User user, Roadmap roadmap) {
+
+        boolean exists = existsByUserIdAndRoadmapId((long)user.getId(),(long)roadmap.getId());
+
+        if(exists){
+            // throw new Error("Roadmap already generated for the user ");
+            return;
+        }
 
         List<UserSubstepProgress> list = new ArrayList<>();
 
@@ -161,7 +173,7 @@ public class UserSubstepProgressService {
                         roadmapProgress.getSubstepsCompleted() - 1);
             }
 
-            roadmapProgressRepo.save(roadmapProgress);
+            roadmapProgressRepo.save(roadmapProgress);   
         }
 
         progress.setCompleted(dto.isCompleted());
@@ -190,9 +202,10 @@ public class UserSubstepProgressService {
         
         for(UserRoadmapProgress progress : progresses){
             RoadmapProgress temp = new RoadmapProgress();
-            temp.setRoadmap(progress.getRoadmap());
+            temp.setRoadmapTitle(progress.getRoadmap().getTitle());
             temp.setSubstepsCompleted(progress.getSubstepsCompleted());
             temp.setTotalSubsteps(progress.getTotalSubsteps()); 
+            temp.setId(progress.getRoadmap().getId());
             roadmaps.add(temp);
         }
         dto.setRoadmaps(roadmaps);
