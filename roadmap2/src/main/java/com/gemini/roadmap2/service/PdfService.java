@@ -98,7 +98,7 @@ public class PdfService {
                 combined.add(descChunk);
 
                 // Add to document
-                document.add(combined);
+                document.add(combined); 
             }
 
             document.add(new Paragraph("\n"));

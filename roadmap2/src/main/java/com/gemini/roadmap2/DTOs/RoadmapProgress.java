@@ -1,6 +1,5 @@
 package com.gemini.roadmap2.DTOs;
 
-import com.gemini.roadmap2.models.Roadmap.Roadmap;
 
 import lombok.Getter;
 import lombok.Setter;
