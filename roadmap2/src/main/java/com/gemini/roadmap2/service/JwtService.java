@@ -23,6 +23,13 @@ public class JwtService {
     @Value("${security.jwt.expiration-time}")
     private long jwtExpiration;
 
+@jakarta.annotation.PostConstruct
+public void init() {
+    System.out.println("Loaded Key Length: " + (secretKey != null ? secretKey.length() : "NULL"));
+}
+
+
+
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
@@ -49,6 +56,8 @@ public class JwtService {
             UserDetails userDetails,
             long expiration
     ) {
+        // private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
@@ -81,8 +90,18 @@ public class JwtService {
                 .getBody();
     }
 
-    private Key getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-        return Keys.hmacShaKeyFor(keyBytes);
-    }
+
+private Key getSignInKey() {
+    // This handles Base64 safely
+    byte[] keyBytes = Decoders.BASE64.decode(secretKey); 
+    return Keys.hmacShaKeyFor(keyBytes);
+}
+
+// private Key getSignInKey() {
+//     String secret = System.getenv("ROADMAP_AI_JWT_KEY");
+//     byte[] keyBytes = Decoders.BASE64.decode(secret);
+    
+//     return Keys.hmacShaKeyFor(keyBytes);
+// }
+
 }
