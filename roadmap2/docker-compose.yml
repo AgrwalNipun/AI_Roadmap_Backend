@@ -6,8 +6,6 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_DATABASE: roadmap_ai_v2
-      MYSQL_USER: ${MYSQL_USERNAME}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
 
     volumes:
       - mysql_data:/var/lib/mysql
