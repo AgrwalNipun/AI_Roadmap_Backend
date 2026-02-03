@@ -22,7 +22,7 @@ services:
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - ROADMAP_AI_JWT_KEY=${ROADMAP_AI_JWT_KEY}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
-    restart: always
+
 
 volumes:
   mysql_data:
