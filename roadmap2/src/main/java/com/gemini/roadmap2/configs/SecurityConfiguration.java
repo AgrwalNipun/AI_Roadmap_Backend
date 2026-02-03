@@ -17,51 +17,46 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 public class SecurityConfiguration {
 
-@Autowired
-AuthenticationProvider authenticationProvider;
+        @Autowired
+        AuthenticationProvider authenticationProvider;
 
-@Autowired
-JwtAuthenticatonFilter jwtAuthenticatonFilter;
+        @Autowired
+        JwtAuthenticatonFilter jwtAuthenticatonFilter;
 
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-@Bean
-public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+                return http
+                                .csrf(csrf -> csrf.disable())
+                                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // <-- ADD THIS LINE
+                                .authorizeHttpRequests(requests -> requests
+                                                .requestMatchers(
+                                                                "/auth/**",
+                                                                "/v3/api-docs/**",
+                                                                "/swagger-ui/**",
+                                                                "/swagger-ui.html")
+                                                .permitAll()
+                                                .anyRequest().authenticated())
+                                .sessionManagement(management -> management
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .authenticationProvider(authenticationProvider)
+                                .addFilterBefore(jwtAuthenticatonFilter, UsernamePasswordAuthenticationFilter.class)
+                                .build();
+        }
 
-    return http
-            .csrf(csrf -> csrf.disable())
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))   // <-- ADD THIS LINE
-            .authorizeHttpRequests(requests -> requests
-                    .requestMatchers(
-                            "/auth/**",
-                            "/v3/api-docs/**",
-                            "/swagger-ui/**",
-                            "/swagger-ui.html"
-                    ).permitAll()
-                    .anyRequest().authenticated()
-            )
-            .sessionManagement(management -> management
-                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-            .authenticationProvider(authenticationProvider)
-            .addFilterBefore(jwtAuthenticatonFilter, UsernamePasswordAuthenticationFilter.class)
-            .build();
-}
+        @Bean
+        public CorsConfigurationSource corsConfigurationSource() {
+                CorsConfiguration config = new CorsConfiguration();
+                config.setAllowCredentials(true);
+                config.addAllowedOrigin("http://localhost:5173"); // React frontend
+                config.addAllowedOrigin("https://roadmap-ai-frontend-eta.vercel.app");
+                config.addAllowedHeader("*"); // allow Authorization
+                config.addExposedHeader("*");
+                config.addAllowedMethod("*"); // GET, POST, PUT, DELETE
 
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-        config.addAllowedOrigin("http://localhost:5173");  // React frontend
-        config.addAllowedHeader("*");                      // allow Authorization
-        config.addExposedHeader("*");
-        config.addAllowedMethod("*");                      // GET, POST, PUT, DELETE
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        return source;
-    }
-
-
+                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+                source.registerCorsConfiguration("/**", config);
+                return source;
+        }
 
 }
