@@ -6,6 +6,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_DATABASE: roadmap_ai_v2
+      MYSQL_ROOT_HOST: "%"
 
     volumes:
       - mysql_data:/var/lib/mysql
@@ -22,7 +23,6 @@ services:
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - ROADMAP_AI_JWT_KEY=${ROADMAP_AI_JWT_KEY}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
-
 
 volumes:
   mysql_data:
